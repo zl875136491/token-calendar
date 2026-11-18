@@ -1,5 +1,14 @@
 import SwiftUI
 
+enum CalendarAppearance {
+    static let windowInset: CGFloat = 14
+    static let background = Color.black
+    static let surface = Color(white: 16.0 / 255)
+    static let mutedSurface = Color(white: 8.0 / 255)
+    static let selectedSurface = Color(white: 23.0 / 255)
+    static let border = Color(white: 34.0 / 255)
+}
+
 extension Provider {
     var color: Color {
         switch self {
@@ -75,7 +84,7 @@ private struct QuotaColumns: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 13)
             ZStack(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: 3).fill(meter.tint.opacity(0.11))
+                RoundedRectangle(cornerRadius: 3).fill(CalendarAppearance.mutedSurface)
                 RoundedRectangle(cornerRadius: 3)
                     .strokeBorder(meter.tint.opacity(0.34), style: StrokeStyle(lineWidth: 1, dash: [2, 2]))
                 if value > 0 {
@@ -131,7 +140,7 @@ struct WeekCalendar: View {
                     dayCell(day, values: values, now: now)
                 }
             }
-            .padding(.bottom, 18)
+            .padding(.bottom, CalendarAppearance.windowInset)
         }
     }
 
@@ -146,12 +155,13 @@ struct WeekCalendar: View {
         }
         .padding(7)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(inMonth ? Color.primary.opacity(0.04) : Color.primary.opacity(0.02),
-                    in: RoundedRectangle(cornerRadius: 8))
+        .background(
+            today ? CalendarAppearance.selectedSurface : inMonth ? CalendarAppearance.surface : CalendarAppearance.mutedSurface,
+            in: RoundedRectangle(cornerRadius: 8)
+        )
         .overlay {
-            if today {
-                RoundedRectangle(cornerRadius: 8).strokeBorder(Color.accentColor.opacity(0.6))
-            }
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(today ? Color.accentColor.opacity(0.65) : CalendarAppearance.border.opacity(inMonth ? 1 : 0.64))
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(day.formatted(date: .complete, time: .omitted))
@@ -183,7 +193,7 @@ struct MonthMatrix: View {
                     }
                 }
             }
-            .padding(.bottom, 18)
+            .padding(.bottom, CalendarAppearance.windowInset)
         }
     }
 
@@ -196,11 +206,11 @@ struct MonthMatrix: View {
         }
         .padding(11)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 9))
+        .background(current ? CalendarAppearance.selectedSurface : CalendarAppearance.surface,
+                    in: RoundedRectangle(cornerRadius: 9))
         .overlay {
-            if current {
-                RoundedRectangle(cornerRadius: 9).strokeBorder(Color.accentColor.opacity(0.6))
-            }
+            RoundedRectangle(cornerRadius: 9)
+                .strokeBorder(current ? Color.accentColor.opacity(0.65) : CalendarAppearance.border)
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("\(number) 月")
@@ -227,7 +237,7 @@ struct QuotaTimeline: View {
                 ScrollViewReader { scroll in
                     ScrollView {
                         timeline(interval: interval, blocks: blocks)
-                            .padding(.bottom, 16)
+                            .padding(.bottom, CalendarAppearance.windowInset)
                     }
                     .onChange(of: interval.start, initial: true) {
                         scroll.scrollTo(initialHour(in: interval, blocks: blocks), anchor: .top)
@@ -271,7 +281,7 @@ struct QuotaTimeline: View {
                             .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                             .frame(width: axisWidth, alignment: .trailing)
-                        Rectangle().fill(Color.primary.opacity(0.12))
+                        Rectangle().fill(CalendarAppearance.border)
                             .frame(height: 1).padding(.top, 6)
                     }
                     .frame(height: hourHeight, alignment: .top)
@@ -281,7 +291,7 @@ struct QuotaTimeline: View {
             HStack(spacing: laneSpacing) {
                 ForEach(meters) { meter in
                     ZStack(alignment: .top) {
-                        RoundedRectangle(cornerRadius: 7).fill(meter.tint.opacity(0.035))
+                        RoundedRectangle(cornerRadius: 7).fill(.white.opacity(0.027))
                         ForEach(blocks[meter.id, default: []]) { block in
                             timelineBar(block, meter: meter)
                                 .padding(.horizontal, 4)
@@ -326,10 +336,10 @@ struct QuotaTimeline: View {
         .frame(height: height)
         .background {
             RoundedRectangle(cornerRadius: 7)
-                .fill(Color(nsColor: .controlBackgroundColor))
+                .fill(CalendarAppearance.surface)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: 7).strokeBorder(tint.opacity(0.38))
+            RoundedRectangle(cornerRadius: 7).strokeBorder(CalendarAppearance.border)
         }
         .clipped()
         .help("\(range) · \(value)")
@@ -341,7 +351,7 @@ struct QuotaTimeline: View {
     private func horizontalBar(_ percentage: Double, meter: Meter, height: CGFloat) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                Capsule().fill(meter.tint.opacity(0.11))
+                Capsule().fill(CalendarAppearance.mutedSurface)
                 Capsule().strokeBorder(meter.tint.opacity(0.4), style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
                 if percentage > 0 {
                     Capsule().fill(meter.gradient).frame(width: geometry.size.width * fillFraction(percentage))

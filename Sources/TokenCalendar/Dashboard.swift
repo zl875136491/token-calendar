@@ -66,6 +66,7 @@ struct TokenCalendarApp: App {
         Window("Token Calendar", id: "calendar") {
             Dashboard(model: model)
                 .frame(minWidth: 920, minHeight: 650)
+                .preferredColorScheme(.dark)
                 .task { model.start() }
         }
         .defaultSize(width: 1120, height: 760)
@@ -100,25 +101,26 @@ struct Dashboard: View {
     var body: some View {
         VStack(spacing: 0) {
             toolbar
-            Divider()
+            Rectangle()
+                .fill(CalendarAppearance.border)
+                .frame(height: 1)
             if let issue = model.storageIssue {
                 Text(issue)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
                     .background(.orange.opacity(0.14))
             }
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 11) {
                 navigation
                 legend
                 periodView
                     .frame(maxHeight: .infinity)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-            .frame(maxWidth: 1230)
+            .padding(.horizontal, CalendarAppearance.windowInset)
+            .padding(.top, 12)
             .frame(maxWidth: .infinity)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(CalendarAppearance.background)
     }
 
     private var toolbar: some View {
@@ -127,7 +129,7 @@ struct Dashboard: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
                 .frame(width: 38, height: 38)
-                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                .background(CalendarAppearance.surface, in: RoundedRectangle(cornerRadius: 10))
                 .accessibilityHidden(true)
             Text("额度日历").font(.title2.bold())
             Spacer()
@@ -151,7 +153,7 @@ struct Dashboard: View {
                 CurrentDetails(model: model, presentation: presentation)
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, CalendarAppearance.windowInset)
         .padding(.vertical, 12)
     }
 
@@ -187,7 +189,7 @@ struct Dashboard: View {
                     .font(.caption)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
-                    .background(meter.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 7))
+                    .background(CalendarAppearance.surface, in: RoundedRectangle(cornerRadius: 7))
                     .help("\(meter.latest.provider.rawValue) · \(meter.latest.pool)")
                 }
                 Spacer(minLength: 0)
@@ -288,6 +290,7 @@ private struct CurrentDetails: View {
         .padding(16)
         .frame(width: 864)
         .fixedSize(horizontal: false, vertical: true)
+        .background(CalendarAppearance.background)
     }
 
     private func providerCard(_ provider: Provider) -> some View {
@@ -334,6 +337,9 @@ private struct CurrentDetails: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+        .background(CalendarAppearance.surface, in: RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10).strokeBorder(CalendarAppearance.border)
+        }
     }
 }
